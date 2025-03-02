@@ -10,7 +10,7 @@
     "shared"
   ],
   "scripts": {
-    "dev": "docker-compose up",
+    "dev": "concurrently \"yarn dev:frontend\" \"yarn dev:auth\" \"yarn dev:member\" \"yarn dev:document\" \"yarn dev:ai\" \"yarn dev:payment\"",
     "dev:frontend": "yarn workspace frontend start",
     "dev:auth": "yarn workspace auth-service dev",
     "dev:member": "yarn workspace member-service dev",
@@ -20,7 +20,8 @@
     "build": "yarn workspaces run build",
     "build:frontend": "yarn workspace frontend build",
     "lint": "yarn workspaces run lint",
-    "test": "yarn workspaces run test"
+    "test": "yarn workspaces run test",
+    "setup:env": "node scripts/setup-env.js"
   },
   "keywords": [
     "tax",
