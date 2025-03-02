@@ -1,0 +1,387 @@
+# .github/workflows/build.yml
+name: Build and Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Lint
+        run: |
+          cd frontend
+          npm run lint
+
+      - name: Test
+        run: |
+          cd frontend
+          npm test
+
+      - name: Build
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: frontend/build
+
+  build-services:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [auth-service, member-service, document-service, ai-service, payment-service]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: services/${{ matrix.service }}/package-lock.json
+
+      - name: Install Dependencies
+        run: |
+          cd services/${{ matrix.service }}
+          npm ci
+
+      - name: Lint
+        run: |
+          cd services/${{ matrix.service }}
+          npm run lint
+
+      - name: Test
+        run: |
+          cd services/${{ matrix.service }}
+          npm test
+
+      - name: Build
+        run: |
+          cd services/${{ matrix.service }}
+          npm run build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.service }}-build
+          path: services/${{ matrix.service }}/dist
+
+  docker-build:
+    needs: [build-frontend, build-services]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    strategy:
+      matrix:
+        component: [frontend, auth-service, member-service, document-service, ai-service, payment-service]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ matrix.component }}-build
+          path: ${{ matrix.component == 'frontend' && 'frontend/build' || format('services/{0}/dist', matrix.component) }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: ${{ matrix.component == 'frontend' && 'frontend' || format('services/{0}', matrix.component) }}
+          push: true
+          tags: |
+            taxsahihai/${{ matrix.component }}:${{ env.BRANCH_NAME == 'main' && 'latest' || 'dev' }}
+            taxsahihai/${{ matrix.component }}:${{ github.sha }}
+
+# .github/workflows/deploy.yml
+name: Deploy to Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["Build and Test"]
+    branches: [main, develop]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set environment
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          else
+            if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+              echo "ENVIRONMENT=production" >> $GITHUB_ENV
+            else
+              echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Set up kubeconfig
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Update Helm dependencies
+        run: |
+          cd kubernetes/charts/taxsahihai
+          helm dependency update
+
+      - name: Deploy with Helm
+        run: |
+          # Set image tag based on environment
+          if [[ "${{ env.ENVIRONMENT }}" == "production" ]]; then
+            TAG=latest
+          else
+            TAG=dev
+          fi
+          
+          # Deploy to the right namespace
+          if [[ "${{ env.ENVIRONMENT }}" == "production" ]]; then
+            NAMESPACE=taxsahihai
+          else
+            NAMESPACE=taxsahihai-staging
+          fi
+          
+          # Create namespace if it doesn't exist
+          kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Deploy using Helm
+          helm upgrade --install taxsahihai kubernetes/charts/taxsahihai \
+            --namespace ${NAMESPACE} \
+            -f kubernetes/charts/taxsahihai/values.yaml \
+            -f kubernetes/charts/taxsahihai/values-${{ env.ENVIRONMENT }}.yaml \
+            --set global.imageTag=${TAG} \
+            --set frontend.image.tag=${TAG} \
+            --set backend.auth.image.tag=${TAG} \
+            --set backend.members.image.tag=${TAG} \
+            --set backend.documents.image.tag=${TAG} \
+            --set backend.ai.image.tag=${TAG} \
+            --set backend.payments.image.tag=${TAG}
+
+      - name: Verify deployment
+        run: |
+          if [[ "${{ env.ENVIRONMENT }}" == "production" ]]; then
+            NAMESPACE=taxsahihai
+          else
+            NAMESPACE=taxsahihai-staging
+          fi
+          
+          # Wait for deployments to be ready
+          kubectl -n ${NAMESPACE} rollout status deployment/taxsahihai-frontend
+          kubectl -n ${NAMESPACE} rollout status deployment/taxsahihai-auth-service
+          kubectl -n ${NAMESPACE} rollout status deployment/taxsahihai-member-service
+          kubectl -n ${NAMESPACE} rollout status deployment/taxsahihai-document-service
+          kubectl -n ${NAMESPACE} rollout status deployment/taxsahihai-ai-service
+          kubectl -n ${NAMESPACE} rollout status deployment/taxsahihai-payment-service
+
+      - name: Send deployment notification
+        if: success()
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          payload: |
+            {
+              "text": "✅ Successfully deployed Tax Sahi Hai to ${{ env.ENVIRONMENT }} environment",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "✅ Deployment Successful"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Tax Sahi Hai* has been deployed to *${{ env.ENVIRONMENT }}* environment."
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Environment:*\n${{ env.ENVIRONMENT }}"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "*Triggered by:*\n${{ github.actor }}"
+                    }
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "View Deployment"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+# kubernetes/scripts/deploy.sh
+#!/bin/bash
+# One-click deployment script for Tax Sahi Hai
+
+  set -e
+  
+  # Parse command-line arguments
+  ENVIRONMENT=${1:-staging}
+  NAMESPACE=${2:-taxsahihai-$ENVIRONMENT}
+  
+  # Validate environment
+  if [[ "$ENVIRONMENT" != "staging" && "$ENVIRONMENT" != "production" ]]; then
+  echo "Invalid environment. Must be 'staging' or 'production'."
+  exit 1
+  fi
+  
+  echo "Deploying Tax Sahi Hai to $ENVIRONMENT environment in namespace $NAMESPACE"
+  
+  # Check if kubectl is installed
+  if ! command -v kubectl &> /dev/null; then
+  echo "kubectl not found. Please install kubectl first."
+  exit 1
+  fi
+  
+  # Check if helm is installed
+  if ! command -v helm &> /dev/null; then
+  echo "helm not found. Please install helm first."
+  exit 1
+  fi
+  
+  # Create namespace if it doesn't exist
+  kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+  
+  # Add required Helm repositories
+  echo "Adding Helm repositories..."
+  helm repo add bitnami https://charts.bitnami.com/bitnami
+  helm repo add elastic https://helm.elastic.co
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm repo update
+  
+  # Set the image tag based on environment
+  if [[ "$ENVIRONMENT" == "production" ]]; then
+  TAG=latest
+  else
+  TAG=dev
+  fi
+  
+  # Deploy using Helm
+  echo "Deploying Tax Sahi Hai with Helm..."
+  helm upgrade --install taxsahihai kubernetes/charts/taxsahihai \
+  --namespace $NAMESPACE \
+  -f kubernetes/charts/taxsahihai/values.yaml \
+  -f kubernetes/charts/taxsahihai/values-$ENVIRONMENT.yaml \
+  --set global.imageTag=$TAG \
+  --set frontend.image.tag=$TAG \
+  --set backend.auth.image.tag=$TAG \
+  --set backend.members.image.tag=$TAG \
+  --set backend.documents.image.tag=$TAG \
+  --set backend.ai.image.tag=$TAG \
+  --set backend.payments.image.tag=$TAG
+  
+  # Wait for deployments to be ready
+  echo "Waiting for deployments to be ready..."
+  kubectl -n $NAMESPACE rollout status deployment/taxsahihai-frontend
+  kubectl -n $NAMESPACE rollout status deployment/taxsahihai-auth-service
+  kubectl -n $NAMESPACE rollout status deployment/taxsahihai-member-service
+  kubectl -n $NAMESPACE rollout status deployment/taxsahihai-document-service
+  kubectl -n $NAMESPACE rollout status deployment/taxsahihai-ai-service
+  kubectl -n $NAMESPACE rollout status deployment/taxsahihai-payment-service
+  
+  # Get service URLs
+  echo ""
+  echo "Deployment Complete!"
+  echo ""
+  echo "Access URLs:"
+  INGRESS_IP=$(kubectl -n $NAMESPACE get ingress taxsahihai-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  if [[ -z "$INGRESS_IP" ]]; then
+  INGRESS_IP=$(kubectl -n $NAMESPACE get ingress taxsahihai-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+  fi
+  
+  if [[ -z "$INGRESS_IP" ]]; then
+  echo "Ingress IP/hostname not yet available. Check status with:"
+  echo "  kubectl -n $NAMESPACE get ingress"
+  else
+  if [[ "$ENVIRONMENT" == "production" ]]; then
+echo "Frontend: https://taxsahihai.com"
+echo "API: https://api.taxsahihai.com"
+  else
+echo "Frontend: https://staging.taxsahihai.com"
+echo "API: https://api.staging.taxsahihai.com"
+  fi
+  fi
+  
+  echo ""
+echo "Monitoring Dashboard: https://metrics.$([[ $ENVIRONMENT == production ]] && echo 'taxsahihai.com' || echo 'staging.taxsahihai.com')"
+  echo ""
+  echo "To check pod status:"
+  echo "  kubectl -n $NAMESPACE get pods"
+  echo ""

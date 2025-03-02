@@ -1,0 +1,44 @@
+{
+  "name": "taxsahihai",
+  "version": "1.0.0",
+  "description": "An AI-powered tax filing and management solution",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "services/*",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "docker-compose up",
+    "dev:frontend": "yarn workspace frontend start",
+    "dev:auth": "yarn workspace auth-service dev",
+    "dev:member": "yarn workspace member-service dev",
+    "dev:document": "yarn workspace document-service dev",
+    "dev:ai": "yarn workspace ai-service dev",
+    "dev:payment": "yarn workspace payment-service dev",
+    "build": "yarn workspaces run build",
+    "build:frontend": "yarn workspace frontend build",
+    "lint": "yarn workspaces run lint",
+    "test": "yarn workspaces run test"
+  },
+  "keywords": [
+    "tax",
+    "ai",
+    "finance",
+    "saas"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.44.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.1.6"
+  }
+}

@@ -1,0 +1,158 @@
+version: '3.8'
+
+services:
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8080
+    depends_on:
+      - api-gateway
+
+  # API Gateway
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - auth-service
+      - member-service
+      - document-service
+      - ai-service
+      - payment-service
+
+  # Authentication Service
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./services/auth-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=8081
+      - MONGO_URI=mongodb://mongo:27017/taxsahihai-auth
+      - JWT_SECRET=your_jwt_secret_key_here
+      - JWT_EXPIRES_IN=1d
+    depends_on:
+      - mongo
+
+  # Member Service
+  member-service:
+    build:
+      context: ./services/member-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./services/member-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=8082
+      - MONGO_URI=mongodb://mongo:27017/taxsahihai-members
+      - AUTH_SERVICE_URL=http://auth-service:8081
+    depends_on:
+      - mongo
+      - auth-service
+
+  # Document Service
+  document-service:
+    build:
+      context: ./services/document-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./services/document-service:/app
+      - /app/node_modules
+      - document-storage:/app/storage
+    environment:
+      - NODE_ENV=development
+      - PORT=8083
+      - MONGO_URI=mongodb://mongo:27017/taxsahihai-documents
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - STORAGE_PATH=/app/storage
+    depends_on:
+      - mongo
+      - auth-service
+
+  # AI Service
+  ai-service:
+    build:
+      context: ./services/ai-service
+      dockerfile: Dockerfile
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./services/ai-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=8084
+      - MONGO_URI=mongodb://mongo:27017/taxsahihai-ai
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - DOCUMENT_SERVICE_URL=http://document-service:8083
+      - OPENAI_API_KEY=your_openai_api_key_here
+    depends_on:
+      - mongo
+      - auth-service
+      - document-service
+
+  # Payment Service
+  payment-service:
+    build:
+      context: ./services/payment-service
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./services/payment-service:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=8085
+      - MONGO_URI=mongodb://mongo:27017/taxsahihai-payments
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - STRIPE_SECRET_KEY=your_stripe_secret_key_here
+      - STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
+    depends_on:
+      - mongo
+      - auth-service
+
+  # MongoDB
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  # Redis for caching
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  mongodb-data:
+  redis-data:
+  document-storage:

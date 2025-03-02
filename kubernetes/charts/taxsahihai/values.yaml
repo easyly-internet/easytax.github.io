@@ -1,0 +1,206 @@
+# values.yaml - Main Helm chart configuration
+
+global:
+  environment: production
+  imageTag: latest
+  domain: taxsahihai.com
+  storageClass: standard
+
+# Frontend configuration
+frontend:
+  name: frontend
+  replicaCount: 2
+  image:
+    repository: taxsahihai/frontend
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: taxsahihai.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: taxsahihai-tls
+        hosts:
+          - taxsahihai.com
+
+# Backend API services
+backend:
+  auth:
+    name: auth-service
+    replicaCount: 2
+    image:
+      repository: taxsahihai/auth-service
+      tag: latest
+    service:
+      port: 8000
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    env:
+      JWT_SECRET: "{{ .Values.secrets.jwtSecret }}"
+      DB_HOST: "{{ .Release.Name }}-postgresql"
+
+  members:
+    name: member-service
+    replicaCount: 2
+    image:
+      repository: taxsahihai/member-service
+      tag: latest
+    service:
+      port: 8001
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+
+  documents:
+    name: document-service
+    replicaCount: 2
+    image:
+      repository: taxsahihai/document-service
+      tag: latest
+    service:
+      port: 8002
+    resources:
+      limits:
+        cpu: 1
+        memory: 1.5Gi
+      requests:
+        cpu: 300m
+        memory: 512Mi
+
+  ai:
+    name: ai-service
+    replicaCount: 1
+    image:
+      repository: taxsahihai/ai-service
+      tag: latest
+    service:
+      port: 8003
+    resources:
+      limits:
+        cpu: 2
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    env:
+      OPENAI_API_KEY: "{{ .Values.secrets.openaiApiKey }}"
+
+  payments:
+    name: payment-service
+    replicaCount: 2
+    image:
+      repository: taxsahihai/payment-service
+      tag: latest
+    service:
+      port: 8004
+    resources:
+      limits:
+        cpu: 1
+        memory: 1Gi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    env:
+      STRIPE_SECRET_KEY: "{{ .Values.secrets.stripeSecretKey }}"
+
+# Database configurations
+postgresql:
+  enabled: true
+  auth:
+    username: taxsahihai
+    password: "{{ .Values.secrets.postgresPassword }}"
+    database: taxsahihai
+  primary:
+    persistence:
+      size: 50Gi
+  metrics:
+    enabled: true
+
+mongodb:
+  enabled: true
+  auth:
+    rootPassword: "{{ .Values.secrets.mongoRootPassword }}"
+    username: taxsahihai
+    password: "{{ .Values.secrets.mongoPassword }}"
+    database: taxsahihai
+  persistence:
+    size: 50Gi
+
+redis:
+  enabled: true
+  auth:
+    password: "{{ .Values.secrets.redisPassword }}"
+  master:
+    persistence:
+      size: 10Gi
+
+elasticsearch:
+  enabled: true
+  replicas: 3
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+  persistence:
+    size: 50Gi
+
+minio:
+  enabled: true
+  accessKey: "{{ .Values.secrets.minioAccessKey }}"
+  secretKey: "{{ .Values.secrets.minioSecretKey }}"
+  persistence:
+    size: 100Gi
+  ingress:
+    enabled: true
+    hosts:
+      - storage.taxsahihai.com
+
+# Monitoring and logging
+prometheus:
+  enabled: true
+
+grafana:
+  enabled: true
+  adminPassword: "{{ .Values.secrets.grafanaPassword }}"
+  ingress:
+    enabled: true
+    hosts:
+      - metrics.taxsahihai.com
+
+# Secrets (to be overridden with actual values)
+secrets:
+  jwtSecret: "REPLACE_WITH_SECURE_KEY"
+  postgresPassword: "REPLACE_WITH_SECURE_PASSWORD"
+  mongoRootPassword: "REPLACE_WITH_SECURE_PASSWORD"
+  mongoPassword: "REPLACE_WITH_SECURE_PASSWORD"
+  redisPassword: "REPLACE_WITH_SECURE_PASSWORD"
+  minioAccessKey: "REPLACE_WITH_SECURE_KEY"
+  minioSecretKey: "REPLACE_WITH_SECURE_KEY"
+  openaiApiKey: "REPLACE_WITH_ACTUAL_API_KEY"
+  stripeSecretKey: "REPLACE_WITH_ACTUAL_API_KEY"
+  grafanaPassword: "REPLACE_WITH_SECURE_PASSWORD"
