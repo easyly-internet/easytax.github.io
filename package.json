@@ -1,8 +1,7 @@
 {
-  "name": "taxsahihai",
+  "name": "easytax",
   "version": "1.0.0",
-  "description": "An AI-powered tax filing and management solution",
-  "main": "index.js",
+  "description": "AI-powered tax filing and management platform",
   "private": true,
   "workspaces": [
     "frontend",
@@ -21,7 +20,7 @@
     "build:frontend": "yarn workspace frontend build",
     "lint": "yarn workspaces run lint",
     "test": "yarn workspaces run test",
-    "setup:env": "node scripts/setup-env.js"
+    "deploy:gh-pages": "yarn workspace frontend build && node scripts/deploy-gh-pages.js"
   },
   "keywords": [
     "tax",
@@ -29,17 +28,18 @@
     "finance",
     "saas"
   ],
-  "author": "",
+  "author": "EasyTax Team",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=18.0.0",
     "yarn": ">=1.22.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.0",
+    "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
-    "eslint": "^8.44.0",
-    "prettier": "^3.0.0",
-    "typescript": "^5.1.6"
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3",
+    "gh-pages": "^6.1.0"
   }
 }

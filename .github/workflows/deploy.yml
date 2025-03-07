@@ -5,8 +5,37 @@ on:
     branches: [ main ]
 
 jobs:
+  deploy-gh-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build frontend
+        run: yarn workspace frontend build
+        env:
+          PUBLIC_URL: /easytax
+          REACT_APP_API_URL: ${{ secrets.API_URL }}
+          REACT_APP_ENV: production
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/build
+
   build-and-push:
     runs-on: ubuntu-latest
+    needs: deploy-gh-pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v3
@@ -20,51 +49,45 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push frontend
-        uses: docker/build-push-action@v4
-        with:
-          context: ./frontend
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxsahihai-frontend:latest
-
       - name: Build and push auth-service
         uses: docker/build-push-action@v4
         with:
           context: ./services/auth-service
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxsahihai-auth-service:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/easytax-auth-service:latest
 
       - name: Build and push member-service
         uses: docker/build-push-action@v4
         with:
           context: ./services/member-service
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxsahihai-member-service:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/easytax-member-service:latest
 
       - name: Build and push document-service
         uses: docker/build-push-action@v4
         with:
           context: ./services/document-service
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxsahihai-document-service:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/easytax-document-service:latest
 
       - name: Build and push ai-service
         uses: docker/build-push-action@v4
         with:
           context: ./services/ai-service
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxsahihai-ai-service:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/easytax-ai-service:latest
 
       - name: Build and push payment-service
         uses: docker/build-push-action@v4
         with:
           context: ./services/payment-service
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/taxsahihai-payment-service:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/easytax-payment-service:latest
 
-  deploy:
+  deploy-kubernetes:
     needs: build-and-push
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v3

@@ -5,19 +5,20 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.14.0",
-    "@mui/material": "^5.14.0",
-    "@tanstack/react-query": "^4.29.19",
-    "axios": "^1.4.0",
-    "formik": "^2.4.2",
+    "@mui/icons-material": "^5.14.8",
+    "@mui/material": "^5.14.8",
+    "@tanstack/react-query": "^4.35.0",
+    "axios": "^1.5.0",
+    "formik": "^2.4.3",
     "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.14.1",
+    "react-router-dom": "^6.15.0",
     "react-scripts": "5.0.1",
-    "typescript": "^5.1.6",
+    "shared": "1.0.0",
+    "typescript": "^5.2.2",
     "yup": "^1.2.0",
-    "zustand": "^4.3.9"
+    "zustand": "^4.4.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -49,13 +50,14 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.4.3",
-    "@types/jest": "^29.5.3",
-    "@types/node": "^20.4.2",
-    "@types/react": "^18.2.15",
+    "@types/jest": "^29.5.4",
+    "@types/node": "^20.5.7",
+    "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint-plugin-react": "^7.32.2",
+    "@typescript-eslint/eslint-plugin": "^6.5.0",
+    "@typescript-eslint/parser": "^6.5.0",
+    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0"
-  }
+  },
+  "homepage": "https://easytax.github.io"
 }
