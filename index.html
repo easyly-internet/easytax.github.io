@@ -3,20 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello, World!</title>
+    <title>Tax Sahi Hai - AI-Powered Tax Filing Solution</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 100px;
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #4caf50;
+            --accent-color: #1b5e20;
+            --light-color: #f1f8e9;
+            --dark-color: #212121;
         }
-        h1 {
-            color: #333;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .hero {
+            background: linear-gradient(rgba(46, 125, 50, 0.9), rgba(46, 125, 50, 0.7)), url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 100px 0;
+            color: white;
+        }
+
+        .feature-box {
+            padding: 30px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-box {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: var(--light-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .icon-box i {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
+        .cta-section {
+            background-color: var(--light-color);
+            padding: 80px 0;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 50px 0 20px;
+        }
+
+        .footer-links h5 {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 20px;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: var(--secondary-color);
         }
     </style>
 </head>
 <body>
-<h1>Hello, World!</h1>
-<p>Welcome to my first GitHub Pages website.</p>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="#">Tax Sahi Hai</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#how-it-works">How It Works</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#pricing">Pricing</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#docs">Documentation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-light ms-lg-3" href="#">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">AI-Powered Tax Filing Made Simple</h1>
+                <p class="lead mb-4">Automated tax processing with AI technology that ensures maximum refunds, minimizes errors, and provides peace of mind.</p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="btn btn-light btn-lg">Get Started</a>
+                    <a href="#" class="btn btn-outline-light btn-lg">Learn More</a>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="https://api.placeholder.com/600/400" alt="Tax filing illustration" class="img-fluid rounded shadow">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5" id="features">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Powerful Features</h2>
+            <p class="lead text-muted">Our platform is designed to make tax filing efficient and hassle-free</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-box shadow-sm border">
+                    <div class="icon-box">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h4>AI-Powered Filing</h4>
+                    <p>Our advanced AI analyzes your documents to identify all possible deductions and optimize your tax filing.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box shadow-sm border">
+                    <div class="icon-box">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4>Secure Document Management</h4>
+                    <p>All your sensitive financial documents are encrypted and stored with bank-level security.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box shadow-sm border">
+                    <div class="icon-box">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <h4>Expert Support</h4>
+                    <p>Connect with tax professionals who can answer your questions and provide guidance.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box shadow-sm border">
+                    <div class="icon-box">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Tax Optimization</h4>
+                    <p>Our system automatically suggests the most advantageous tax regime and filing options.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box shadow-sm border">
+                    <div class="icon-box">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h4>Mobile Friendly</h4>
+                    <p>Upload documents and manage your tax filing from any device, anytime, anywhere.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-box shadow-sm border">
+                    <div class="icon-box">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h4>Multi-Year Support</h4>
+                    <p>File current taxes and easily access or amend previous years' filings in one place.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="bg-light py-5" id="how-it-works">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="lead text-muted">Complete your tax filing in three simple steps</p>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-lg-6 order-lg-2 mb-4 mb-lg-0">
+                <img src="https://api.placeholder.com/600/400" alt="How it works" class="img-fluid rounded shadow">
+            </div>
+            <div class="col-lg-6 order-lg-1">
+                <div class="d-flex mb-4">
+                    <div class="me-4">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <h3 class="m-0">1</h3>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Upload Your Documents</h4>
+                        <p>Simply scan and upload your tax documents - Form 16, investment proofs, and other financial statements.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="me-4">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <h3 class="m-0">2</h3>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>AI Processes Your Information</h4>
+                        <p>Our AI system analyzes your documents, identifies deductions, and prepares your tax filing.</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="me-4">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <h3 class="m-0">3</h3>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Review and Submit</h4>
+                        <p>Review the prepared filing, make any necessary adjustments, and submit with a single click.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="py-5" id="pricing">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Simple, Transparent Pricing</h2>
+            <p class="lead text-muted">Choose the plan that works best for you</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white text-center py-4">
+                        <h3 class="fw-bold mb-0">Basic</h3>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-center">
+                            <span class="display-4 fw-bold">₹999</span>
+                            <span class="text-muted">/year</span>
+                        </div>
+                        <ul class="list-unstyled mt-4 mb-5">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Single tax filing</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> AI document analysis</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Basic tax optimization</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Email support</li>
+                            <li class="mb-2 text-muted"><i class="fas fa-times text-danger me-2"></i> Multi-year support</li>
+                            <li class="mb-2 text-muted"><i class="fas fa-times text-danger me-2"></i> Priority processing</li>
+                        </ul>
+                        <a href="#" class="btn btn-outline-primary mt-auto">Choose Plan</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow">
+                    <div class="card-header bg-primary text-white text-center py-4">
+                        <h3 class="fw-bold mb-0">Standard</h3>
+                        <div class="badge bg-warning text-dark mt-2">Popular Choice</div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-center">
+                            <span class="display-4 fw-bold">₹1,999</span>
+                            <span class="text-muted">/year</span>
+                        </div>
+                        <ul class="list-unstyled mt-4 mb-5">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Single tax filing</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> AI document analysis</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Advanced tax optimization</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Email & chat support</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 2-year filing history</li>
+                            <li class="mb-2 text-muted"><i class="fas fa-times text-danger me-2"></i> Priority processing</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary mt-auto">Choose Plan</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-primary text-white text-center py-4">
+                        <h3 class="fw-bold mb-0">Premium</h3>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="text-center">
+                            <span class="display-4 fw-bold">₹3,999</span>
+                            <span class="text-muted">/year</span>
+                        </div>
+                        <ul class="list-unstyled mt-4 mb-5">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Single tax filing</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> AI document analysis</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Premium tax optimization</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Priority support</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> 5-year filing history</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i> Priority processing</li>
+                        </ul>
+                        <a href="#" class="btn btn-outline-primary mt-auto">Choose Plan</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Documentation Section -->
+<section class="bg-light py-5" id="docs">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Documentation</h2>
+            <p class="lead text-muted">Resources for developers and users</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title"><i class="fas fa-code me-2 text-primary"></i>Developer Docs</h4>
+                        <p class="card-text">Technical documentation for implementing and extending the Tax Sahi Hai platform.</p>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">API Reference</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Integration Guide</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Kubernetes Deployment</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Security Architecture</a></li>
+                        </ul>
+                        <a href="#" class="btn btn-primary">View Documentation</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title"><i class="fas fa-book me-2 text-primary"></i>User Guide</h4>
+                        <p class="card-text">Comprehensive guides to help users get the most out of the Tax Sahi Hai platform.</p>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Getting Started</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Document Upload Guide</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">Understanding Your Tax Filing</a></li>
+                            <li class="list-group-item"><a href="#" class="text-decoration-none">FAQ</a></li>
+                        </ul>
+                        <a href="#" class="btn btn-primary">View User Guides</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section" id="contact">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-4">Ready to simplify your tax filing?</h2>
+                <p class="lead mb-4">Join thousands of satisfied customers who have made tax filing effortless with our AI-powered platform.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="#" class="btn btn-primary btn-lg">Get Started Today</a>
+                    <a href="#" class="btn btn-outline-primary btn-lg">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h4 class="fw-bold text-white mb-4">Tax Sahi Hai</h4>
+                <p>We're on a mission to make tax filing simple, efficient, and stress-free for everyone using the power of AI and automation.</p>
+                <div class="social-icons mt-4">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 footer-links mb-4 mb-md-0">
+                <h5>Company</h5>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Press</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4 footer-links mb-4 mb-md-0">
+                <h5>Product</h5>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Security</a></li>
+                    <li><a href="#">Testimonials</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 col-md-4 footer-links mb-4 mb-md-0">
+                <h5>Support</h5>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-2 footer-links">
+                <h5>Legal</h5>
+                <ul>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Compliance</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr class="mt-5 mb-4" style="background-color: rgba(255, 255, 255, 0.1);">
+        <div class="text-center">
+            <p class="mb-0">&copy; 2025 Tax Sahi Hai. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
