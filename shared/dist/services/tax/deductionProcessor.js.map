@@ -1,0 +1,1 @@
+{"version":3,"file":"deductionProcessor.js","sourceRoot":"","sources":["../../../src/services/tax/deductionProcessor.ts"],"names":[],"mappings":";;AAoBA,8CAMC;AANM,KAAK,UAAU,iBAAiB,CAAC,KAAe;IACnD,OAAO,KAAK,CAAC,GAAG,CAAC,IAAI,CAAC,EAAE,CAAC,CAAC;QACtB,IAAI,EAAE,IAAI;QACV,MAAM,EAAE,IAAI,CAAC,MAAM,EAAE,GAAG,IAAI;QAC5B,OAAO,EAAE,SAAS;KACrB,CAAC,CAAC,CAAC;AACR,CAAC"}
