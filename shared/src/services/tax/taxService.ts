@@ -1,25 +1,18 @@
 // Path: shared/src/services/taxService.ts
 
-export interface TaxCalculation {
-  id: string;
-  member_id: string;
-  financial_year: string;
-  gross_income: number;
-  deductions: Deduction[];
-  taxable_income: number;
-  tax_payable: number;
-  tax_paid: number;
-  tax_refund: number;
-  created_at?: string;
-  updated_at?: string;
+import {Deduction, TaxCalculation, TaxLiability} from "../../types/tax";
+
+export async function calculateTaxLiability(
+    income: number,
+    deductions: Deduction[]
+): Promise<TaxLiability> {
+  return {
+    oldRegime: income * 0.1 - deductions.reduce((sum, d) => sum + d.amount, 0),
+    newRegime: income * 0.08 - deductions.reduce((sum, d) => sum + d.amount, 0),
+    recommended: 'oldRegime',
+  };
 }
 
-export interface Deduction {
-  section: string;
-  description: string;
-  amount: number;
-  max_limit?: number;
-}
 
 export enum TaxFilingStatus {
   NOT_STARTED = 'NOT_STARTED',

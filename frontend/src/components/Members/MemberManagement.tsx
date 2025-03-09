@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
+import type { Member } from "../../../../shared/src/types/member";
+import mockMembers from "../../../../shared/src/types/mocks/mockMembers";
+import {MemberStatus} from "../../../../shared/src/types/member";
 
 // Member Management Component
 const MemberManagement = () => {
   const [loading, setLoading] = useState(true);
-  const [members, setMembers] = useState([]);
-  const [selectedMember, setSelectedMember] = useState(null);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [isViewDetailsOpen, setIsViewDetailsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [sortConfig, setSortConfig] = useState<{ key: keyof Member | null; direction: string }>({
+    key: null,
+    direction: 'ascending',
+  });
   const pageSize = 5;
 
   useEffect(() => {
@@ -20,61 +26,6 @@ const MemberManagement = () => {
 
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Mock data
-        const mockMembers = [
-          {
-            id: 1,
-            panNumber: 'ABCDE1234F',
-            fullName: 'Rahul Sharma',
-            email: 'rahul.sharma@example.com',
-            status: 'Active',
-            lastUpdated: '2023-07-15',
-            documentCount: 12,
-            fileYears: ['2022-2023', '2021-2022']
-          },
-          {
-            id: 2,
-            panNumber: 'FGHIJ5678K',
-            fullName: 'Priya Patel',
-            email: 'priya.patel@example.com',
-            status: 'Active',
-            lastUpdated: '2023-07-12',
-            documentCount: 8,
-            fileYears: ['2022-2023']
-          },
-          {
-            id: 3,
-            panNumber: 'LMNOP9012Q',
-            fullName: 'Amit Kumar',
-            email: 'amit.kumar@example.com',
-            status: 'Inactive',
-            lastUpdated: '2023-06-20',
-            documentCount: 5,
-            fileYears: ['2021-2022', '2020-2021']
-          },
-          {
-            id: 4,
-            panNumber: 'RSTUV3456W',
-            fullName: 'Sneha Gupta',
-            email: 'sneha.gupta@example.com',
-            status: 'Active',
-            lastUpdated: '2023-07-18',
-            documentCount: 15,
-            fileYears: ['2022-2023', '2021-2022', '2020-2021']
-          },
-          {
-            id: 5,
-            panNumber: 'WXYZA7890B',
-            fullName: 'Vikram Singh',
-            email: 'vikram.singh@example.com',
-            status: 'Pending',
-            lastUpdated: '2023-07-05',
-            documentCount: 3,
-            fileYears: ['2022-2023']
-          }
-        ];
-
         setMembers(mockMembers);
         setLoading(false);
       } catch (error) {
@@ -86,7 +37,7 @@ const MemberManagement = () => {
     fetchMembers();
   }, []);
 
-  const handleViewDetails = (member) => {
+  const handleViewDetails = (member: Member) => {
     setSelectedMember(member);
     setIsViewDetailsOpen(true);
   };
@@ -97,12 +48,11 @@ const MemberManagement = () => {
   };
 
   // Handle sorting
-  const requestSort = (key) => {
-    let direction = 'ascending';
-    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-    setSortConfig({ key, direction });
+  const requestSort = (key: keyof Member) => {
+    setSortConfig((prevState) => ({
+      key,
+      direction: prevState.key === key && prevState.direction === 'ascending' ? 'descending' : 'ascending',
+    }));
   };
 
   // Apply sorting and filtering
@@ -119,18 +69,23 @@ const MemberManagement = () => {
     }
 
     // Apply sorting
-    if (sortConfig.key) {
+    if (sortConfig.key !== null) {
       sortableMembers.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
+        const key = sortConfig.key as keyof Member;
+
+        if (a[key] === undefined || b[key] === undefined) {
+          return 0; // Treat undefined values as equal
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
+
+        if (a[key] < b[key]) {
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        }
+        if (a[key] > b[key]) {
+          return sortConfig.direction === "ascending" ? 1 : -1;
         }
         return 0;
       });
     }
-
     return sortableMembers;
   };
 
@@ -143,11 +98,11 @@ const MemberManagement = () => {
     (currentPage + 1) * pageSize
   );
 
-  const goToPage = (page) => {
+  const goToPage = (page: number) => {
     setCurrentPage(Math.max(0, Math.min(page, pageCount - 1)));
   };
 
-  const renderStatusBadge = (status) => {
+  const renderStatusBadge = (status : MemberStatus) => {
     let colorClass = 'bg-gray-100 text-gray-800';
     if (status === 'Active') colorClass = 'bg-green-100 text-green-800';
     if (status === 'Inactive') colorClass = 'bg-red-100 text-red-800';
@@ -234,30 +189,16 @@ const MemberManagement = () => {
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                      onClick={() => requestSort('status')}
                     >
                       Status
-                      {sortConfig.key === 'status' && (
-                        <span>{sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}</span>
-                      )}
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                      onClick={() => requestSort('lastUpdated')}
+                      onClick={() => requestSort('updatedAt')}
                     >
                       Last Updated
-                      {sortConfig.key === 'lastUpdated' && (
-                        <span>{sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}</span>
-                      )}
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                      onClick={() => requestSort('documentCount')}
-                    >
-                      Documents
-                      {sortConfig.key === 'documentCount' && (
+                      {sortConfig.key === 'updatedAt' && (
                         <span>{sortConfig.direction === 'ascending' ? ' ▲' : ' ▼'}</span>
                       )}
                     </th>
@@ -282,10 +223,10 @@ const MemberManagement = () => {
                         {renderStatusBadge(member.status)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {member.lastUpdated}
+                        {member.updatedAt}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {member.documentCount}
+                        {member.documents?.length}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
@@ -396,18 +337,18 @@ const MemberManagement = () => {
                       </div>
                       <div className="flex justify-between border-b pb-2">
                         <span className="text-sm font-medium text-gray-500">Last Updated:</span>
-                        <span className="text-sm text-gray-900">{selectedMember.lastUpdated}</span>
+                        <span className="text-sm text-gray-900">{selectedMember.updatedAt}</span>
                       </div>
                       <div className="flex justify-between border-b pb-2">
                         <span className="text-sm font-medium text-gray-500">Documents Count:</span>
-                        <span className="text-sm text-gray-900">{selectedMember.documentCount}</span>
+                        <span className="text-sm text-gray-900">{selectedMember.documents?.length}</span>
                       </div>
                       <div className="border-b pb-2">
                         <span className="text-sm font-medium text-gray-500">Tax Filing Years:</span>
                         <div className="mt-1 flex flex-wrap gap-2">
-                          {selectedMember.fileYears.map((year) => (
-                            <span key={year} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                              {year}
+                          {selectedMember.financialYears?.map((year) => (
+                            <span key={year.financialYear} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                              {year.financialYear}
                             </span>
                           ))}
                         </div>

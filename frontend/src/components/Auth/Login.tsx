@@ -80,7 +80,7 @@ const Login: React.FC = () => {
         }
 
         // Clear any previous errors
-        // clearError();
+
 
         try {
             // Determine if identifier is email or mobile and call login

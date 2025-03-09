@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import authService, { User, LoginCredentials, RegisterData } from '../../../shared/src/services/authService';
+import authService from '../../../shared/src/services/authService';
+import {LoginCredentials, RegisterData, User} from "../../../shared/src/types/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;

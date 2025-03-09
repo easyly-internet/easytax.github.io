@@ -1,54 +1,14 @@
 // Path: shared/src/services/authService.ts
-
-// User interface representing a logged-in user
-export interface User {
-    id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    mobile: string;
-    status: 'ACTIVE' | 'INACTIVE' | 'PENDING';
-    device_id?: string;
-    created_at?: string;
-    updated_at?: string;
-}
-
-// Login credentials for authentication
-export interface LoginCredentials {
-    email?: string;
-    mobile?: string;
-    password: string;
-}
-
-// Registration data for new user signup
-export interface RegisterData {
-    first_name: string;
-    last_name: string;
-    email: string;
-    mobile: string;
-    password: string;
-    device_id?: string;
-}
-
-// OTP verification data
-export interface OtpVerificationData {
-    mobile: string;
-    otp: string;
-}
-
-// Password reset request
-export interface PasswordResetRequest {
-    email?: string;
-    mobile?: string;
-}
-
-// Auth response with token
-interface AuthResponse {
-    user: User;
-    token: string;
-}
-
 // Auth service class
+import {
+    AuthResponse,
+    LoginCredentials,
+    OtpVerificationData,
+    PasswordResetRequest,
+    RegisterData,
+    User, UserRole, UserStatus
+} from "../types/auth";
+
 class AuthService {
     // API base URL - replace with your actual API endpoint
     private apiUrl = '/api/auth';
@@ -69,7 +29,6 @@ class AuthService {
         }
     }
 
-    // Login user
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
         const response = await fetch(`${this.apiUrl}/login`, {
             method: 'POST',
@@ -86,8 +45,20 @@ class AuthService {
 
         const data = await response.json();
         this.setToken(data.token);
-        return data;
+
+        return {
+            ...data,
+            user: {
+                firstName: data.user.firstName || "",
+                lastName: data.user.lastName || "",
+                role: data.user.role || "user",
+                createdAt: data.user.createdAt || new Date().toISOString(),
+                updatedAt: data.user.updatedAt || new Date().toISOString(),
+                ...data.user, // Merge existing user properties
+            }
+        };
     }
+
 
     // Verify OTP
     async verifyOTP(verificationData: OtpVerificationData): Promise<AuthResponse> {
@@ -140,9 +111,8 @@ class AuthService {
             throw new Error(errorData.message || 'Password reset failed');
         }
     }
-
     // Get current user
-    async getCurrentUser(): Promise<User | null> {
+    async getCurrentUser(): Promise< User | null > {
         const token = this.getToken();
         if (!token) return null;
 
@@ -152,18 +122,28 @@ class AuthService {
                     'Authorization': `Bearer ${token}`
                 }
             });
-
             if (!response.ok) {
                 this.logout();
                 return null;
             }
-
-            return await response.json();
+            const user: Partial<User> = await response.json();
+            return {
+                id: user.id ?? "",  // Ensure id is always a string
+                firstName: user.firstName ?? "",
+                lastName: user.lastName ?? "",
+                email: user.email ?? "",
+                mobile: user.mobile ?? "",
+                role: user.role ?? "user" as UserRole,  // Explicitly cast default
+                status: user.status ?? "active" as UserStatus,  // Explicitly cast default
+                createdAt: user.createdAt ?? new Date().toISOString(),
+                updatedAt: user.updatedAt ?? new Date().toISOString(),
+            };
         } catch (error) {
             this.logout();
             return null;
         }
     }
+
 
     // Logout user
     logout(): void {

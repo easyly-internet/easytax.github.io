@@ -1,8 +1,9 @@
 import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Member } from '../../../shared/src/services/memberService';
-import { Document } from '../../../shared/src/services/documentService';
-import { TaxCalculation, TaxFilingStatus } from '../../../shared/src/services/taxService';
+import { Document } from '../../../shared/src/services/document/documentService';
+import { TaxFilingStatus } from '../../../shared/src/services/tax/taxService';
+import {TaxCalculation} from "../../../shared/src/types/tax";
 
 // Define app state interface
 interface AppState {

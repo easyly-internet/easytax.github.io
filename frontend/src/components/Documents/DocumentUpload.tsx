@@ -19,7 +19,7 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 import { useMutation } from '@tanstack/react-query';
-import { uploadDocument } from '../../../../shared/src/services/documentService';
+import { uploadDocument } from '../../../../shared/src/services/document/documentService';
 
 interface DocumentUploadProps {
   memberId: string;
@@ -49,14 +49,21 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const [password, setPassword] = useState('');
   const [dragActive, setDragActive] = useState(false);
 
-  const uploadMutation = useMutation(uploadDocument, {
-    onSuccess: () => {
-      setFiles([]);
-      setDocumentName('');
-      setPassword('');
-      onUploadSuccess();
-    }
-  });
+
+  const uploadMutation = useMutation(
+      ({ memberId, file, financialYear, isProtected, password }:
+           { memberId: string; file: File; financialYear: string; isProtected?: boolean; password?: string }
+      ) => uploadDocument(memberId, file, financialYear, isProtected, password),
+      {
+        onSuccess: () => {
+          setFiles([]);
+          setDocumentName('');
+          setPassword('');
+          onUploadSuccess();
+        }
+      }
+  );
+
 
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -92,23 +99,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
 
   const handleSubmit = async () => {
     if (files.length === 0) return;
-
-    const formData = new FormData();
-    formData.append('memberId', memberId);
-    formData.append('financialYear', financialYear);
-    formData.append('documentType', documentType);
-    formData.append('documentName', documentName || files[0].name);
-    formData.append('isProtected', isProtected.toString());
-
-    if (isProtected && password) {
-      formData.append('password', password);
-    }
-
-    files.forEach(file => {
-      formData.append('documents', file);
+    uploadMutation.mutate({
+      memberId: memberId,
+      file: files[0],  // Replace with actual file
+      financialYear: financialYear,
+      isProtected: isProtected,
+      password: password  // Optional
     });
-
-    uploadMutation.mutate(formData);
   };
 
   return (

@@ -33,7 +33,7 @@ import {
   FilterList as FilterIcon
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchDocuments, deleteDocument } from '../../../../shared/src/services/documentService';
+import { getDocumentsByMemberId, deleteDocument } from '../../../../shared/src/services/document/documentService';
 import { Document } from '../../../../shared/src/types/document';
 import DocumentPasswordDialog from './DocumentPasswordDialog';
 import DocumentViewerDialog from './DocumentViewerDialog';
@@ -59,7 +59,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
 
   const { data, isLoading, error } = useQuery(
     ['documents', memberId, financialYear, searchTerm],
-    () => fetchDocuments(memberId, financialYear, searchTerm),
+    () => getDocumentsByMemberId(memberId, financialYear),
     {
       keepPreviousData: true
     }
@@ -206,7 +206,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
                 Error loading documents. Please try again.
               </Typography>
             </Box>
-          ) : data?.documents.length === 0 ? (
+          ) : data?.length === 0 ? (
             <Box p={3} textAlign="center">
               <Typography color="textSecondary">
                 No documents found. Upload documents to see them here.
@@ -225,13 +225,13 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
                 </TableRow>
               </TableHead>
               <TableBody>
-                {(data?.documents || [])
+                {(data || [])
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((document) => (
                     <TableRow key={document.id}>
                       <TableCell>
                         <Box display="flex" alignItems="center">
-                          {document.isProtected && (
+                          {document.is_protected && (
                             <Tooltip title="Password Protected">
                               <LockIcon fontSize="small" color="action" sx={{ mr: 1 }} />
                             </Tooltip>
@@ -244,16 +244,16 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
                       <TableCell>
                         {getDocumentTypeLabel(document.type)}
                       </TableCell>
-                      <TableCell>{document.financialYear}</TableCell>
-                      <TableCell>{formatDate(document.uploadedAt)}</TableCell>
+                      <TableCell>{document.financial_year}</TableCell>
+                      <TableCell>{formatDate(document.upload_date)}</TableCell>
                       <TableCell>
                         <Chip
                           label={document.status}
                           size="small"
                           color={
-                            document.status === 'Verified' ? 'success' :
-                            document.status === 'Pending' ? 'warning' :
-                            document.status === 'Rejected' ? 'error' : 'default'
+                            document.status === 'APPROVED' ? 'success' :
+                            document.status === 'PENDING' ? 'warning' :
+                            document.status === 'REJECTED' ? 'error' : 'default'
                           }
                         />
                       </TableCell>
@@ -274,7 +274,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={data?.documents.length || 0}
+          count={data?.length || 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -288,10 +288,10 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
         open={Boolean(menuAnchorEl)}
         onClose={handleMenuClose}
       >
-        {data?.documents.find(doc => doc.id === currentDocumentId) && (
+        {data?.find(doc => doc.id === currentDocumentId) && (
           <>
             <MenuItem onClick={() => {
-              const doc = data.documents.find(d => d.id === currentDocumentId);
+              const doc = data.find(d => d.id === currentDocumentId);
               if (doc) handleViewDocument(doc);
             }}>
               <ListItemIcon>
@@ -300,7 +300,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
               <ListItemText>View</ListItemText>
             </MenuItem>
             <MenuItem onClick={() => {
-              const doc = data.documents.find(d => d.id === currentDocumentId);
+              const doc = data.find(d => d.id === currentDocumentId);
               if (doc) handleDownloadDocument(doc);
             }}>
               <ListItemIcon>
@@ -309,7 +309,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
               <ListItemText>Download</ListItemText>
             </MenuItem>
             <MenuItem onClick={() => {
-              const doc = data.documents.find(d => d.id === currentDocumentId);
+              const doc = data.find(d => d.id === currentDocumentId);
               if (doc) handleDeleteDocument(doc);
             }}>
               <ListItemIcon>

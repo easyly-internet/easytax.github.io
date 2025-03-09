@@ -316,7 +316,7 @@ jobs:
   exit 1
   fi
   
-  # Create namespace if it doesn't exist
+  # Create namespace if it doesn'taxAnalysis.model.ts exist
   kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
   
   # Add required Helm repositories

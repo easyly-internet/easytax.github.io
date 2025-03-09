@@ -22,7 +22,7 @@ import {
   NavigateNext as NextIcon,
   RotateRight as RotateIcon
 } from '@mui/icons-material';
-import { Document as DocumentType } from '../../types/document';
+import { Document as DocumentType } from '../../../../shared/src/types/document';
 
 interface DocumentViewerDialogProps {
   open: boolean;
@@ -82,9 +82,9 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
 
   // Determine file type
   const getFileType = () => {
-    if (!document?.fileUrl) return null;
+    if (!document?.downloadUrl) return null;
 
-    const extension = document.fileUrl.split('.').pop()?.toLowerCase();
+    const extension = document.downloadUrl.split('.').pop()?.toLowerCase();
     if (['jpg', 'jpeg', 'png', 'gif'].includes(extension || '')) {
       return 'image';
     } else if (extension === 'pdf') {
@@ -202,11 +202,11 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
             </Paper>
           )}
 
-          {!error && document?.fileUrl && (
+          {!error && document?.downloadUrl && (
             <>
               {fileType === 'image' ? (
                 <img
-                  src={document.fileUrl}
+                  src={document.downloadUrl}
                   alt={document.name}
                   style={{
                     maxWidth: '100%',
@@ -229,7 +229,7 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
                 >
                   {/* In a real implementation, use a PDF viewer library like react-pdf */}
                   <iframe
-                    src={`${document.fileUrl}#page=${currentPage}`}
+                    src={`${document.downloadUrl}#page=${currentPage}`}
                     title={document.name}
                     width="100%"
                     height="100%"
@@ -259,7 +259,7 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
 
       <DialogActions sx={{ borderTop: '1px solid', borderColor: 'divider', px: 2 }}>
         <Typography variant="caption" color="textSecondary" sx={{ flex: 1 }}>
-          {document?.fileSize ? `Size: ${document.fileSize}` : ''}
+          {document?.size ? `Size: ${document.size}` : ''}
           {document?.uploadedAt ? ` • Uploaded: ${new Date(document.uploadedAt).toLocaleDateString()}` : ''}
         </Typography>
         <Button onClick={onClose} color="primary">

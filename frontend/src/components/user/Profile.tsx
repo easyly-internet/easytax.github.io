@@ -22,7 +22,7 @@ import {
   Lock, 
   Save
 } from '@mui/icons-material';
-import useAuthStore from '../../store/index';
+import { useAuth } from '../../hooks/useAuth';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -58,7 +58,7 @@ function a11yProps(index: number) {
 }
 
 const Profile: React.FC = () => {
-  const { user, updateUser, loading, error, clearError } = useAuthStore();
+  const { user, loading, error } = useAuth();
   
   // Tab state
   const [tabValue, setTabValue] = useState(0);
@@ -80,7 +80,6 @@ const Profile: React.FC = () => {
   
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-    clearError();
     setSuccessMessage('');
   };
   
@@ -142,15 +141,14 @@ const Profile: React.FC = () => {
     
     // Clear previous messages
     setSuccessMessage('');
-    clearError();
     
     try {
-      await updateUser({
-        firstName,
-        lastName,
-        email,
-        mobile
-      });
+      // await updateUser({
+      //   firstName,
+      //   lastName,
+      //   email,
+      //   mobile
+      // });
       
       setSuccessMessage('Profile updated successfully');
     } catch (err) {
@@ -242,7 +240,7 @@ const Profile: React.FC = () => {
           
           {/* Error Message */}
           {error && (
-            <Alert severity="error" sx={{ mt: 3 }} onClose={clearError}>
+            <Alert severity="error" sx={{ mt: 3 }} >
               {error}
             </Alert>
           )}

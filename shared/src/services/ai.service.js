@@ -2,7 +2,7 @@
 import { Configuration, OpenAIApi } from 'openai';
 import fs from 'fs';
 import path from 'path';
-import documentService from './documentService';
+import documentService from './document/documentService';
 
 /**
  * AI Service for tax document analysis and recommendations
