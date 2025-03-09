@@ -95,7 +95,7 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
     setSelectedDocument(document);
     handleMenuClose();
 
-    if (document.isProtected) {
+    if (document.is_protected) {
       setIsPasswordDialogOpen(true);
     } else {
       setIsViewerOpen(true);
@@ -106,11 +106,11 @@ const DocumentList: React.FC<DocumentListProps> = ({ memberId, financialYear }) 
     setSelectedDocument(document);
     handleMenuClose();
 
-    if (document.isProtected) {
+    if (document.is_protected) {
       setIsPasswordDialogOpen(true);
     } else {
       // Implement document download logic
-      window.open(document.downloadUrl, '_blank');
+      window.open(document.path, '_blank');
     }
   };
 

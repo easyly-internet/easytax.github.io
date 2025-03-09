@@ -63,8 +63,8 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
   };
 
   const handleDownload = () => {
-    if (document?.downloadUrl) {
-      window.open(document.downloadUrl, '_blank');
+    if (document?.path) {
+      window.open(document.path, '_blank');
     }
   };
 
@@ -82,9 +82,9 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
 
   // Determine file type
   const getFileType = () => {
-    if (!document?.downloadUrl) return null;
+    if (!document?.path) return null;
 
-    const extension = document.downloadUrl.split('.').pop()?.toLowerCase();
+    const extension = document.path.split('.').pop()?.toLowerCase();
     if (['jpg', 'jpeg', 'png', 'gif'].includes(extension || '')) {
       return 'image';
     } else if (extension === 'pdf') {
@@ -202,11 +202,11 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
             </Paper>
           )}
 
-          {!error && document?.downloadUrl && (
+          {!error && document?.path && (
             <>
               {fileType === 'image' ? (
                 <img
-                  src={document.downloadUrl}
+                  src={document.path}
                   alt={document.name}
                   style={{
                     maxWidth: '100%',
@@ -229,7 +229,7 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
                 >
                   {/* In a real implementation, use a PDF viewer library like react-pdf */}
                   <iframe
-                    src={`${document.downloadUrl}#page=${currentPage}`}
+                    src={`${document.path}#page=${currentPage}`}
                     title={document.name}
                     width="100%"
                     height="100%"
@@ -260,7 +260,7 @@ const DocumentViewerDialog: React.FC<DocumentViewerDialogProps> = ({
       <DialogActions sx={{ borderTop: '1px solid', borderColor: 'divider', px: 2 }}>
         <Typography variant="caption" color="textSecondary" sx={{ flex: 1 }}>
           {document?.size ? `Size: ${document.size}` : ''}
-          {document?.uploadedAt ? ` • Uploaded: ${new Date(document.uploadedAt).toLocaleDateString()}` : ''}
+          {document?.upload_date ? ` • Uploaded: ${new Date(document.upload_date).toLocaleDateString()}` : ''}
         </Typography>
         <Button onClick={onClose} color="primary">
           Close

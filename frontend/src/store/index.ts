@@ -1,7 +1,7 @@
 import create from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Member } from '../../../shared/src/services/memberService';
-import { Document } from '../../../shared/src/services/document/documentService';
+import { Document } from '../../../shared/src/types/document';
 import { TaxFilingStatus } from '../../../shared/src/services/tax/taxService';
 import {TaxCalculation} from "../../../shared/src/types/tax";
 

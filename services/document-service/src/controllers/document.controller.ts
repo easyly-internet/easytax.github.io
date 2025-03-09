@@ -4,8 +4,8 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
-const DocumentService = require('../../../shared/src/services/document.service');
-const AIService = require('../../../shared/src/services/ai.service');
+const DocumentService = require('../../../../shared/src/services/document/documentService');
+const AIService = require('../../../../shared/src/services/ai.service');
 import '../models/index';
 
 // Import models

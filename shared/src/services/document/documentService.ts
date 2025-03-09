@@ -1,21 +1,6 @@
 // Path: shared/src/services/documentService.ts
 
-export interface Document {
-  id: string;
-  member_id: string;
-  financial_year?: string;
-  name: string;
-  path: string;
-  type: string;
-  size: number;
-  password?: string;
-  is_protected?: boolean;
-  upload_date: string;
-  status?: 'PENDING' | 'APPROVED' | 'REJECTED';
-  metadata?: Record<string, any>;
-  created_at?: string;
-  updated_at?: string;
-}
+import { Document } from '../../types/document';
 
 export const fetchDocuments = async (): Promise<Document[]> => {
   const response = await fetch(`/api/documents`);
