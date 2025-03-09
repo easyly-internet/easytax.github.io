@@ -13,7 +13,7 @@ import cron from 'node-cron';
 import { processRecurringPayments } from './utils/subscriptionManager';
 
 // // Initialize Stripe
-// const stripe = new Stripe('pk_test_51R0akTGxXKAKpnT0copJ7lzxOEwFAdijm4YdgrZT4zWWkp4iFZ8hriUCumG1No5cCpbSmlY4g0Vl9GHGtThsoaMF00zBbYiOuA', {
+// const stripe = new Stripe('', {
 //   apiVersion: '2023-10-16'
 // });
 

@@ -45,7 +45,7 @@ EasyTax is built on a modern microservices architecture:
 
 3. Start the development environment:
    ```bash
-   docker-compose up
+   yarn dev || docker-compose up
    ```
 
 4. Access the application:
