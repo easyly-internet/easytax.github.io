@@ -1,14 +1,18 @@
+// At the top of your index.ts file
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import passport from 'passport';
-import { connectDatabase } from './database';
-import { configurePassport } from './config/passport';
+import { connectDatabase } from './database/index';
+import configurePassport from './config/passport';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
-import { errorHandler } from './middleware/error.middleware';
-import { logger } from './utils/logger';
+import { errorHandler } from './middleware/error.middleware.ts';
+
 
 // Initialize express app
 const app = express();
@@ -43,10 +47,10 @@ const startServer = async () => {
 
     // Start listening
     app.listen(PORT, () => {
-      logger.info(`Auth service running on port ${PORT}`);
+      console.info(`Auth service running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };

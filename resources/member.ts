@@ -1,4 +1,3 @@
-// src/index.ts - Main entry point for the Member service
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -7,9 +6,9 @@ import { connectDatabase } from './database';
 import memberRoutes from './routes/member.routes';
 import documentRoutes from './routes/document.routes';
 import paymentRoutes from './routes/payment.routes';
-import authMiddleware from './middleware/auth.middleware';
+import { authenticate } from './middleware/auth.middleware';
 import errorHandler from './middleware/error.middleware';
-import { logger } from './utils/logger';
+
 
 const app = express();
 const PORT = process.env.PORT || 8001;
@@ -26,9 +25,9 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/members', authMiddleware, memberRoutes);
-app.use('/api/documents', authMiddleware, documentRoutes);
-app.use('/api/payments', authMiddleware, paymentRoutes);
+app.use('/api/members', authenticate, memberRoutes);
+app.use('/api/documents', authenticate, documentRoutes);
+app.use('/api/payments', authenticate, paymentRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -38,10 +37,10 @@ const startServer = async () => {
   try {
     await connectDatabase();
     app.listen(PORT, () => {
-      logger.info(`Member service running on port ${PORT}`);
+      console.info(`Member service running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
@@ -139,7 +138,7 @@ import { Request, Response, NextFunction } from 'express';
 import Member from '../models/member.model';
 import { createS3Client } from '../utils/s3';
 import { createNotification } from '../utils/notifications';
-import { logger } from '../utils/logger';
+
 
 /**
  * Get all members with pagination and filtering
@@ -188,7 +187,7 @@ export const getMembers = async (
       data: members
     });
   } catch (error) {
-    logger.error('Error fetching members:', error);
+    console.error('Error fetching members:', error);
     next(error);
   }
 };
@@ -216,7 +215,7 @@ export const getMemberById = async (
       data: member
     });
   } catch (error) {
-    logger.error(`Error fetching member ${req.params.id}:`, error);
+    console.error(`Error fetching member ${req.params.id}:`, error);
     next(error);
   }
 };
@@ -292,7 +291,7 @@ export const createMember = async (
       data: member
     });
   } catch (error) {
-    logger.error('Error creating member:', error);
+    console.error('Error creating member:', error);
     next(error);
   }
 };
@@ -324,7 +323,7 @@ export const updateMember = async (
       data: member
     });
   } catch (error) {
-    logger.error(`Error updating member ${req.params.id}:`, error);
+    console.error(`Error updating member ${req.params.id}:`, error);
     next(error);
   }
 };
@@ -391,7 +390,7 @@ export const uploadDocument = async (
       data: member
     });
   } catch (error) {
-    logger.error(`Error uploading document for member ${req.params.id}:`, error);
+    console.error(`Error uploading document for member ${req.params.id}:`, error);
     next(error);
   }
 };

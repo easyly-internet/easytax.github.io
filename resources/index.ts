@@ -1,4 +1,3 @@
-// src/services/ai-tax-service/index.ts
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -10,10 +9,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { pipeline } from 'stream/promises';
 import fs from 'fs';
 import path from 'path';
-import { logger } from './utils/logger';
+
 import documentExtractor from './utils/documentExtractor';
 import { TaxRules } from './utils/taxRules';
-import authMiddleware from './middleware/auth.middleware';
+import { authenticate } from './middleware/auth.middleware';
 import errorHandler from './middleware/error.middleware';
 
 // Initialize OpenAI
@@ -72,7 +71,7 @@ app.get('/health', (req, res) => {
 /**
  * Analyze document for tax filing
  */
-app.post('/api/analyze-document', authMiddleware, upload.single('document'), async (req, res, next) => {
+app.post('/api/analyze-document', authenticate, upload.single('document'), async (req, res, next) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -87,11 +86,11 @@ app.post('/api/analyze-document', authMiddleware, upload.single('document'), asy
     const financialYear = req.body.financialYear || `${new Date().getFullYear() - 1}-${new Date().getFullYear()}`;
 
     // Extract text from document
-    logger.info(`Extracting text from ${documentType} document`);
+    console.info(`Extracting text from ${documentType} document`);
     const extractedText = await documentExtractor.extractText(filePath, req.file.mimetype);
 
     // Analyze document with OpenAI
-    logger.info('Analyzing document with AI');
+    console.info('Analyzing document with AI');
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [
@@ -149,7 +148,7 @@ app.post('/api/analyze-document', authMiddleware, upload.single('document'), asy
       });
 
     if (error) {
-      logger.error('Error storing document:', error);
+      console.error('Error storing document:', error);
       throw new Error('Error storing document');
     }
 
@@ -184,7 +183,7 @@ app.post('/api/analyze-document', authMiddleware, upload.single('document'), asy
       }
     });
   } catch (error) {
-    logger.error('Error analyzing document:', error);
+    console.error('Error analyzing document:', error);
     // Clean up temp file if it exists
     if (req.file?.path && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
@@ -196,7 +195,7 @@ app.post('/api/analyze-document', authMiddleware, upload.single('document'), asy
 /**
  * Get AI tax advice
  */
-app.post('/api/tax-advice', authMiddleware, async (req, res, next) => {
+app.post('/api/tax-advice', authenticate, async (req, res, next) => {
   try {
     const { query, context } = req.body;
     const userId = req.user.id;
@@ -260,7 +259,7 @@ app.post('/api/tax-advice', authMiddleware, async (req, res, next) => {
       }
     });
   } catch (error) {
-    logger.error('Error getting tax advice:', error);
+    console.error('Error getting tax advice:', error);
     next(error);
   }
 });
@@ -268,7 +267,7 @@ app.post('/api/tax-advice', authMiddleware, async (req, res, next) => {
 /**
  * Generate tax filing summary
  */
-app.post('/api/tax-summary', authMiddleware, async (req, res, next) => {
+app.post('/api/tax-summary', authenticate, async (req, res, next) => {
   try {
     const { financialYear } = req.body;
     const userId = req.user.id;
@@ -420,7 +419,7 @@ app.post('/api/tax-summary', authMiddleware, async (req, res, next) => {
       }
     });
   } catch (error) {
-    logger.error('Error generating tax summary:', error);
+    console.error('Error generating tax summary:', error);
     next(error);
   }
 });
@@ -432,10 +431,10 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     app.listen(PORT, () => {
-      logger.info(`AI Tax Service running on port ${PORT}`);
+      console.info(`AI Tax Service running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };

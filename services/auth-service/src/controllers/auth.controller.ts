@@ -1,298 +1,134 @@
+// services/auth-service/src/controllers/auth.controller.ts
 import { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import User from '../models/user.model';
-import { validateLoginInput, validateRegisterInput } from '../validation/auth.validation';
-import { generateOTP } from '../utils/otp';
-import { sendOTP } from '../services/sms.service';
-import { logger } from '../utils/logger';
-import { ApiError } from '../utils/apiError';
+import { createError } from '../utils/error';
 
-/**
- * Register a new user
- * @route POST /api/auth/register
- */
+// User registration
 export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Validate input
-    const { errors, isValid } = validateRegisterInput(req.body);
-    if (!isValid) {
-      return res.status(400).json({ success: false, errors });
-    }
-
-    const { firstName, lastName, email, mobile, deviceId } = req.body;
-
+    const { email, password, firstName, lastName, mobile } = req.body;
+    
     // Check if user already exists
-    const existingUser = await User.findOne({ mobile });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        errors: { mobile: ['Mobile number already registered'] }
-      });
+      return next(createError(400, 'User with this email already exists'));
     }
-
-    // Generate OTP
-    const otp = generateOTP();
-
+    
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
     // Create new user
     const user = new User({
+      email,
+      password: hashedPassword,
       firstName,
       lastName,
-      email,
-      mobile,
-      deviceId,
-      password: await bcrypt.hash(otp.toString(), 10),
-      role: 'USER',
-      status: 'PENDING'
+      mobile
     });
-
+    
     await user.save();
-
-    // Send OTP via SMS
-    await sendOTP(mobile, otp);
-
+    
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. OTP sent to your mobile number.'
+      message: 'User registered successfully'
     });
   } catch (error) {
-    logger.error('Error in register controller:', error);
     next(error);
   }
 };
 
-/**
- * Login user
- * @route POST /api/auth/login
- */
+// User login
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Validate input
-    const { errors, isValid } = validateLoginInput(req.body);
-    if (!isValid) {
-      return res.status(400).json({ success: false, errors });
-    }
-
-    const { mobile, deviceId } = req.body;
-
-    // Find user by mobile
-    const user = await User.findOne({ mobile });
+    const { email, password } = req.body;
+    
+    // Find user
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(401).json({
-        success: false,
-        errors: { mobile: ['User not found'] }
-      });
+      return next(createError(401, 'Invalid credentials'));
     }
-
-    // Update device ID if provided
-    if (deviceId) {
-      user.deviceId = deviceId;
-      await user.save();
+    
+    // Check password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return next(createError(401, 'Invalid credentials'));
     }
-
-    // Generate OTP
-    const otp = generateOTP();
-
-    // Update user password with OTP
-    user.password = await bcrypt.hash(otp.toString(), 10);
-    await user.save();
-
-    // Send OTP via SMS
-    await sendOTP(mobile, otp);
-
-    res.status(200).json({
-      success: true,
-      message: 'OTP sent to your mobile number'
-    });
-  } catch (error) {
-    logger.error('Error in login controller:', error);
-    next(error);
-  }
-};
-
-/**
- * Verify OTP and generate JWT token
- * @route POST /api/auth/verify-otp
- */
-export const verifyOTP = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { mobile, otp } = req.body;
-
-    // Validate input
-    if (!mobile || !otp) {
-      return res.status(400).json({
-        success: false,
-        errors: {
-          message: ['Mobile and OTP are required']
-        }
-      });
-    }
-
-    // Find user by mobile
-    const user = await User.findOne({ mobile });
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        errors: { mobile: ['User not found'] }
-      });
-    }
-
-    // Verify OTP
-    const isMatch = await bcrypt.compare(otp.toString(), user.password);
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        errors: { otp: ['Invalid OTP'] }
-      });
-    }
-
-    // Update user status if pending
-    if (user.status === 'PENDING') {
-      user.status = 'ACTIVE';
-      await user.save();
-    }
-
-    // Generate JWT token
-    const payload = {
-      id: user.id,
-      role: user.role
-    };
-
-    const token = jwt.sign(
-      payload,
-      process.env.JWT_SECRET || 'default_jwt_secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+    
+    // Generate tokens
+    const accessToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET || 'default_secret',
+      { expiresIn: '1h' }
     );
-
-    // Generate refresh token
+    
     const refreshToken = jwt.sign(
-      { id: user.id },
-      process.env.JWT_REFRESH_SECRET || 'default_jwt_refresh_secret',
+      { id: user._id },
+      process.env.JWT_REFRESH_SECRET || 'default_refresh_secret',
       { expiresIn: '7d' }
     );
-
-    // Remove password from response
-    const userResponse = {
-      id: user.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      mobile: user.mobile,
-      role: user.role,
-      status: user.status,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt
-    };
-
+    
     res.status(200).json({
       success: true,
-      token: `Bearer ${token}`,
+      accessToken,
       refreshToken,
-      user: userResponse
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName
+      }
     });
   } catch (error) {
-    logger.error('Error in verifyOTP controller:', error);
     next(error);
   }
 };
 
-/**
- * Refresh JWT token
- * @route POST /api/auth/refresh-token
- */
+// Refresh token
 export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { refreshToken } = req.body;
-
+    
     if (!refreshToken) {
-      return res.status(400).json({
-        success: false,
-        errors: { message: ['Refresh token is required'] }
-      });
+      return next(createError(400, 'Refresh token is required'));
     }
-
+    
     // Verify refresh token
     const decoded = jwt.verify(
       refreshToken,
-      process.env.JWT_REFRESH_SECRET || 'default_jwt_refresh_secret'
+      process.env.JWT_REFRESH_SECRET || 'default_refresh_secret'
     ) as { id: string };
-
+    
     // Find user
     const user = await User.findById(decoded.id);
     if (!user) {
-      throw new ApiError(401, 'User not found');
+      return next(createError(401, 'Invalid token'));
     }
-
-    // Generate new JWT token
-    const payload = {
-      id: user.id,
-      role: user.role
-    };
-
-    const token = jwt.sign(
-      payload,
-      process.env.JWT_SECRET || 'default_jwt_secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '1d' }
+    
+    // Generate new access token
+    const accessToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET || 'default_secret',
+      { expiresIn: '1h' }
     );
-
-    // Generate new refresh token
-    const newRefreshToken = jwt.sign(
-      { id: user.id },
-      process.env.JWT_REFRESH_SECRET || 'default_jwt_refresh_secret',
-      { expiresIn: '7d' }
-    );
-
+    
     res.status(200).json({
       success: true,
-      token: `Bearer ${token}`,
-      refreshToken: newRefreshToken
+      accessToken
     });
   } catch (error) {
-    logger.error('Error in refreshToken controller:', error);
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
-        success: false,
-        errors: { message: ['Invalid refresh token'] }
-      });
-    }
     next(error);
   }
 };
 
-/**
- * Logout user (revoke token)
- * @route POST /api/auth/logout
- */
-export const logout = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // No server-side token storage for now, so nothing to do here
-    // In a real-world app, you would revoke the token
-
-    res.status(200).json({
-      success: true,
-      message: 'Logged out successfully'
-    });
-  } catch (error) {
-    logger.error('Error in logout controller:', error);
-    next(error);
-  }
-};
-
-/**
- * Get current user
- * @route GET /api/auth/me
- */
-export const getCurrentUser = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // User is already attached to req by passport middleware
-    const user = req.user as any;
-
-    res.status(200).json({
-      success: true,
-      data: user
-    });
-  } catch (error) {
-    logger.error('Error in getCurrentUser controller:', error);
-    next(error);
-  }
+// Logout
+export const logout = (req: Request, res: Response) => {
+  // In a stateless JWT system, logout is handled client-side
+  // by removing the tokens from storage
+  res.status(200).json({
+    success: true,
+    message: 'Logged out successfully'
+  });
 };

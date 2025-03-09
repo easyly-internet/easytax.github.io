@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import { OpenAI } from 'openai';
 import TaxAnalysis from '../models/taxAnalysis.model';
-import { logger } from '../utils/logger';
+
 import { ApiError } from '../utils/apiError';
 import { extractTextFromPDF } from '../services/documentProcessor';
 import { processIncomeSources } from '../services/incomeProcessor';
@@ -77,7 +77,7 @@ export const analyzeTaxDocuments = async (req: Request, res: Response, next: Nex
         const text = await extractTextFromPDF(documentPath);
         documentTexts.push({ name: doc.name, text });
       } catch (error) {
-        logger.error(`Error extracting text from document ${doc.name}:`, error);
+        console.error(`Error extracting text from document ${doc.name}:`, error);
       }
     }
 
@@ -145,7 +145,7 @@ export const analyzeTaxDocuments = async (req: Request, res: Response, next: Nex
       data: taxAnalysis
     });
   } catch (error) {
-    logger.error('Error in analyzeTaxDocuments controller:', error);
+    console.error('Error in analyzeTaxDocuments controller:', error);
     next(error);
   }
 };
@@ -172,7 +172,7 @@ export const getTaxAnalysis = async (req: Request, res: Response, next: NextFunc
       data: taxAnalysis
     });
   } catch (error) {
-    logger.error('Error in getTaxAnalysis controller:', error);
+    console.error('Error in getTaxAnalysis controller:', error);
     next(error);
   }
 };
@@ -200,7 +200,7 @@ export const compareRegimes = async (req: Request, res: Response, next: NextFunc
       data: taxLiability
     });
   } catch (error) {
-    logger.error('Error in compareRegimes controller:', error);
+    console.error('Error in compareRegimes controller:', error);
     next(error);
   }
 };
@@ -235,7 +235,7 @@ export const estimateRefund = async (req: Request, res: Response, next: NextFunc
       }
     });
   } catch (error) {
-    logger.error('Error in estimateRefund controller:', error);
+    console.error('Error in estimateRefund controller:', error);
     next(error);
   }
 };
@@ -298,7 +298,7 @@ export const askTaxAssistant = async (req: Request, res: Response, next: NextFun
       }
     });
   } catch (error) {
-    logger.error('Error in askTaxAssistant controller:', error);
+    console.error('Error in askTaxAssistant controller:', error);
     next(error);
   }
 };

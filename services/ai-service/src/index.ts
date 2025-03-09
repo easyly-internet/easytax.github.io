@@ -2,13 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import { connectDatabase } from './database';
+import { connectDatabase } from './database/index';
 import taxAnalysisRoutes from './routes/taxAnalysis.routes';
 import documentProcessingRoutes from './routes/documentProcessing.routes';
 import recommendationRoutes from './routes/recommendation.routes';
-import { errorHandler } from './middleware/error.middleware';
-import { authMiddleware } from './middleware/auth.middleware';
-import { logger } from './utils/logger';
+import errorHandler from './middleware/error.middleware';
+import { authenticate } from './middleware/auth.middleware';
+import logger from './utils/logger';
 
 // Initialize express app
 const app = express();
@@ -27,9 +27,9 @@ app.get('/health', (req, res) => {
 });
 
 // Apply auth middleware to all routes except health check
-app.use('/api/tax-analysis', authMiddleware, taxAnalysisRoutes);
-app.use('/api/document-processing', authMiddleware, documentProcessingRoutes);
-app.use('/api/recommendations', authMiddleware, recommendationRoutes);
+app.use('/api/tax-analysis', authenticate, taxAnalysisRoutes);
+app.use('/api/document-processing', authenticate, documentProcessingRoutes);
+app.use('/api/recommendations', authenticate, recommendationRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
@@ -42,10 +42,10 @@ const startServer = async () => {
 
     // Start listening
     app.listen(PORT, () => {
-      logger.info(`AI service running on port ${PORT}`);
+      console.info(`AI service running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };

@@ -5,11 +5,12 @@ import morgan from 'morgan';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { connectDatabase } from './database';
-import documentRoutes from './routes/document.routes';
+import { connectDatabase } from './database/index';
+import documentRoutes from './routes/document.route';
 import { errorHandler } from './middleware/error.middleware';
-import { authMiddleware } from './middleware/auth.middleware';
-import { logger } from './utils/logger';
+import { authenticate } from './middleware/auth.middleware';
+import Document from './models/document.model';
+
 
 // Initialize express app
 const app = express();
@@ -19,7 +20,7 @@ const PORT = process.env.PORT || 8083;
 const storageDir = process.env.STORAGE_PATH || path.join(__dirname, '../storage');
 if (!fs.existsSync(storageDir)) {
   fs.mkdirSync(storageDir, { recursive: true });
-  logger.info(`Created storage directory: ${storageDir}`);
+  console.info(`Created storage directory: ${storageDir}`);
 }
 
 // Configure multer storage
@@ -76,7 +77,7 @@ app.get('/health', (req, res) => {
 });
 
 // Apply auth middleware to all routes except health check
-app.use('/api/documents', authMiddleware, documentRoutes);
+app.use('/api/documents', authenticate, documentRoutes);
 
 // Error handling middleware
 app.use(errorHandler);
@@ -89,10 +90,10 @@ const startServer = async () => {
 
     // Start listening
     app.listen(PORT, () => {
-      logger.info(`Document service running on port ${PORT}`);
+      console.info(`Document service running on port ${PORT}`);
     });
   } catch (error) {
-    logger.error('Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
