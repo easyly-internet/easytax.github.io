@@ -3,14 +3,18 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
+// Import AuthProvider
+import { AuthProvider } from './context/AuthProvider';
+
 // Auth components
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import Profile from './components/user/Profile';
 
-// Placeholder components (to be implemented later)
-const Dashboard = () => <div>Dashboard (To be implemented)</div>;
+// Placeholder components
+import DashboardWithProvider from './components/Dashboard/Dashboard'
+// const Dashboard = () => <div>Dashboard (To be implemented)</div>;
 const MemberList = () => <div>Member List (To be implemented)</div>;
 const Documents = () => <div>Documents (To be implemented)</div>;
 const FileTax = () => <div>File Tax (To be implemented)</div>;
@@ -57,54 +61,56 @@ const theme = createTheme({
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
       <Router>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/unauthorized" element={<Unauthorized />} />
+      <AuthProvider> {/* ✅ Wrap App with AuthProvider */}
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Protected routes */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
+              {/* Protected routes */}
+              <Route path="/dashboard" element={
+                // <ProtectedRoute>
+                  <DashboardWithProvider />
+                // </ProtectedRoute>
+              } />
 
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
 
-          <Route path="/members" element={
-            <ProtectedRoute requiredRole={['Admin', 'CA']}>
-              <MemberList />
-            </ProtectedRoute>
-          } />
+              <Route path="/members" element={
+                <ProtectedRoute requiredRole={['Admin', 'CA']}>
+                  <MemberList />
+                </ProtectedRoute>
+              } />
 
-          <Route path="/documents" element={
-            <ProtectedRoute>
-              <Documents />
-            </ProtectedRoute>
-          } />
+              <Route path="/documents" element={
+                <ProtectedRoute>
+                  <Documents />
+                </ProtectedRoute>
+              } />
 
-          <Route path="/file-tax" element={
-            <ProtectedRoute>
-              <FileTax />
-            </ProtectedRoute>
-          } />
+              <Route path="/file-tax" element={
+                <ProtectedRoute>
+                  <FileTax />
+                </ProtectedRoute>
+              } />
 
-          {/* Redirect root to dashboard if logged in, otherwise to login */}
-          <Route path="/" element={<Navigate replace to="/dashboard" />} />
+              {/* Redirect root to dashboard if logged in, otherwise to login */}
+              <Route path="/" element={<Navigate replace to="/dashboard" />} />
 
-          {/* 404 route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+              {/* 404 route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+        </ThemeProvider>
+      </AuthProvider>
       </Router>
-    </ThemeProvider>
   );
 }
 

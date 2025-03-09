@@ -1,4 +1,15 @@
 // User and Authentication Types
+
+
+// Define the authentication context
+interface AuthContextType {
+  user: any;
+  login: (credentials: { email?: string; mobile?: string; password: string }) => Promise<void>;
+  logout: () => void;
+  loading: boolean;
+  error: string | null;
+}
+
 export interface User {
   id: string;
   firstName: string;

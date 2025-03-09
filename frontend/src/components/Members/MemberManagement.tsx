@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
-import type { Member } from "../../../../shared/src/types/member";
-import mockMembers from "../../../../shared/src/types/mocks/mockMembers";
-import {MemberStatus} from "../../../../shared/src/types/member";
+import type { Member } from "../../shared/src/types/member";
+import mockMembers from "../../shared/src/types/mocks/mockMembers";
+import {MemberStatus} from "../../shared/src/types/member";
 
 // Member Management Component
 const MemberManagement = () => {

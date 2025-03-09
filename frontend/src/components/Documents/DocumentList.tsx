@@ -33,8 +33,8 @@ import {
   FilterList as FilterIcon
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getDocumentsByMemberId, deleteDocument } from '../../../../shared/src/services/document/documentService';
-import { Document } from '../../../../shared/src/types/document';
+import { getDocumentsByMemberId, deleteDocument } from '../../shared/src/services/document/documentService';
+import { Document } from '../../shared/src/types/document';
 import DocumentPasswordDialog from './DocumentPasswordDialog';
 import DocumentViewerDialog from './DocumentViewerDialog';
 import ConfirmationDialog from '../common/ConfirmationDialog';

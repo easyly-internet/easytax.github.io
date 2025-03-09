@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import { OpenAI } from 'openai';
-import TaxAnalysis from '../../../shared/src/models/taxAnalysis.model';
+import TaxAnalysis from '../shared/src/models/taxAnalysis.model';
 
-import { createError } from '../../../shared/src/utils/error';
-import { extractTextFromPDF } from '../../../shared/src/services/document/documentProcessor';
-import { processIncomeSources } from '../../../shared/src/services/tax/incomeProcessor';
-import { processDeductions } from '../../../shared/src/services/tax/deductionProcessor';
-import { calculateTaxLiability } from '../../../shared/src/services/tax/taxCalculator';
-import { generateRecommendations } from '../../../shared/src/services/tax/recommendationGenerator';
+import { createError } from '../shared/src/utils/error';
+import { extractTextFromPDF } from '../shared/src/services/document/documentProcessor';
+import { processIncomeSources } from '../shared/src/services/tax/incomeProcessor';
+import { processDeductions } from '../shared/src/services/tax/deductionProcessor';
+import { calculateTaxLiability } from '../shared/src/services/tax/taxCalculator';
+import { generateRecommendations } from '../shared/src/services/tax/recommendationGenerator';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 

@@ -7,11 +7,15 @@ import {
   PaymentOutlined as PaymentIcon,
   CalendarTodayOutlined as CalendarIcon
 } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
-import dashboardService, { DashboardStats } from '../../../../shared/src/services/dashboardService';
+import dashboardService, { DashboardStats } from '../../shared/src/services/dashboardService';
 import StatusCard from '../common/StatusCard';
 import DashboardChart from './DashboardChart';
 import RecentActivityList from './RecentActivityList';
+import { useQuery, QueryClient, QueryClientProvider  } from '@tanstack/react-query';
+
+
+// ✅ Create QueryClient instance
+const queryClient = new QueryClient();
 
 interface DashboardProps {
   userId?: string;
@@ -130,4 +134,10 @@ const Dashboard: React.FC<DashboardProps> = ({ userId }) => {
   );
 };
 
-export default Dashboard;
+const DashboardWithProvider = () => (
+    <QueryClientProvider client={queryClient}>
+      <Dashboard />
+    </QueryClientProvider>
+);
+
+export default DashboardWithProvider;

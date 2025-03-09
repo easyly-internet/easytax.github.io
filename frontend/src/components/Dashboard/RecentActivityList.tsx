@@ -16,7 +16,7 @@ import {
   PaymentOutlined as PaymentIcon,
   CheckCircleOutlineOutlined as CompletedIcon
 } from '@mui/icons-material';
-import { RecentActivity } from '../../../../shared/src/types/dashboard';
+import { RecentActivity } from '../../shared/src/types/dashboard';
 
 interface RecentActivityListProps {
   activities: RecentActivity[];

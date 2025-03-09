@@ -11,7 +11,7 @@ import {
   Legend
 } from 'recharts';
 import { Box, ToggleButtonGroup, ToggleButton, useTheme, useMediaQuery } from '@mui/material';
-import { ActivityData } from '../../../../shared/src/types/dashboard';
+import { ActivityData } from '../../shared/src/types/dashboard';
 
 interface DashboardChartProps {
   data: ActivityData[];

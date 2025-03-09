@@ -1,7 +1,7 @@
 // src/controllers/documentProcessing.controller.js
 
-const AIService = require('../../../shared/src/services/ai.service');
-const DocumentService = require('../../../shared/src/services/document.service');
+const AIService = require('../shared/src/services/ai.service');
+const DocumentService = require('../shared/src/services/document.service');
 
 /**
  * Extract text from document

@@ -22,7 +22,7 @@ import {
   NavigateNext as NextIcon,
   RotateRight as RotateIcon
 } from '@mui/icons-material';
-import { Document as DocumentType } from '../../../../shared/src/types/document';
+import { Document as DocumentType } from '../../shared/src/types/document';
 
 interface DocumentViewerDialogProps {
   open: boolean;
