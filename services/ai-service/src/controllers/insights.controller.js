@@ -1,9 +1,9 @@
 // src/controllers/insights.controller.js
 import mongoose from 'mongoose';
 
-const TaxCalculationService = require('../services/taxCalculation.service');
-const AIService = require('../services/ai.service');
-const DocumentService = require('../services/document.service');
+const TaxCalculationService = require('../../../shared/src/services/taxCalculation.service');
+const AIService = require('../../../shared/src/services/ai.service');
+const DocumentService = require('../../../shared/src/services/document.service');
 
 // Import models
 const TaxAnalysis = mongoose.model('TaxAnalysis');

@@ -1,4 +1,4 @@
-// src/services/document.service.js
+// src/services/documentService.ts
 import axios from 'axios';
 
 

@@ -8,7 +8,7 @@ import {
   CalendarTodayOutlined as CalendarIcon
 } from '@mui/icons-material';
 import { useQuery } from '@tanstack/react-query';
-import { fetchDashboardStats } from '../../services/dashboardService';
+import dashboardService, { DashboardStats } from '../../../../shared/src/services/dashboardService';
 import StatusCard from '../common/StatusCard';
 import DashboardChart from './DashboardChart';
 import RecentActivityList from './RecentActivityList';
@@ -22,7 +22,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userId }) => {
 
   const { data: stats, isLoading, error } = useQuery(
     ['dashboardStats', userId, timeframe],
-    () => fetchDashboardStats(userId, timeframe),
+    // () => dashboardService.fetchDashboardStats(userId, timeframe),
+    () => dashboardService.fetchDashboardStats(),
     {
       refetchInterval: 300000, // Refetch every 5 minutes
       staleTime: 240000 // Consider data stale after 4 minutes

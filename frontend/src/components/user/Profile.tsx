@@ -22,7 +22,7 @@ import {
   Lock, 
   Save
 } from '@mui/icons-material';
-import useAuthStore from '../../store/authStore';
+import useAuthStore from '../../store/index';
 
 interface TabPanelProps {
   children?: React.ReactNode;

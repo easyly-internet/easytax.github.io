@@ -1,8 +1,8 @@
 // src/controllers/taxAnalysis.controller.js
 import mongoose from 'mongoose';
-import DocumentService from '../services/document.service';
-import AIService from '../services/ai.service';
-import TaxCalculationService from '../services/taxCalculation.service';
+import DocumentService from '../../../shared/src/services/document.service';
+import AIService from '../../../shared/src/services/ai.service';
+import TaxCalculationService from '../../../shared/src/services/taxCalculation.service';
 
 
 /**

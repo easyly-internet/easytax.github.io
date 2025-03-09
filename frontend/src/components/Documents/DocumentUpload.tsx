@@ -19,7 +19,7 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 import { useMutation } from '@tanstack/react-query';
-import { uploadDocument } from '../../services/documentService';
+import { uploadDocument } from '../../../../shared/src/services/documentService';
 
 interface DocumentUploadProps {
   memberId: string;

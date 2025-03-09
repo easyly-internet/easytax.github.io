@@ -12,8 +12,13 @@ const DashboardOverview = () => {
     pendingReviews: 0
   });
 
-  const [filingStatusData, setFilingStatusData] = useState([]);
-  const [monthlyActivity, setMonthlyActivity] = useState([]);
+  const [filingStatusData, setFilingStatusData] = useState<
+      { name: string; value: number; color: string }[]
+  >([]);
+
+  const [monthlyActivity, setMonthlyActivity] = useState<
+      { month: string; documents: number; filings: number }[]
+  >([]);
 
   useEffect(() => {
     // Simulate API call
@@ -166,10 +171,10 @@ const DashboardOverview = () => {
                     label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
                     {filingStatusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={(entry as { color: string }).color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value) => [`${value} members`, 'Count']} />
+                  <Tooltip formatter={(value: number) => [`${value} members`, 'Count']} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

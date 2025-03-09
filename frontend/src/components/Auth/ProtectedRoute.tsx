@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import useAuthStore, { useAuthCheck } from '../../store/authStore';
 import { Box, CircularProgress } from '@mui/material';
+import { useAuth } from '../../hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,10 +10,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole }) => {
   const location = useLocation();
-  const { isAuthenticated, user, loading } = useAuthStore();
-
-  // Check if token is valid
-  useAuthCheck();
+  const { isAuthenticated, user, loading } = useAuth();
 
   // If still loading, show loading spinner
   if (loading) {
@@ -34,12 +31,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
   if (requiredRole) {
     // If requiredRole is an array, check if user has any of the roles
     if (Array.isArray(requiredRole)) {
-      if (!requiredRole.includes(user.role)) {
+      if (!requiredRole.includes(user.email)) {
         return <Navigate to="/unauthorized" replace />;
       }
     }
     // If requiredRole is a string, check if user has that role
-    else if (user.role !== requiredRole) {
+    else if (user.email !== requiredRole) {
       return <Navigate to="/unauthorized" replace />;
     }
   }

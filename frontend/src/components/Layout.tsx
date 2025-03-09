@@ -4,11 +4,11 @@ import { OpenAI } from 'openai';
 import TaxAnalysis from '../models/taxAnalysis.model';
 
 import { ApiError } from '../utils/apiError';
-import { extractTextFromPDF } from '../services/documentProcessor';
-import { processIncomeSources } from '../services/incomeProcessor';
-import { processDeductions } from '../services/deductionProcessor';
-import { calculateTaxLiability } from '../services/taxCalculator';
-import { generateRecommendations } from '../services/recommendationGenerator';
+import { extractTextFromPDF } from '../../../shared/src/services/documentProcessor';
+import { processIncomeSources } from '../../../shared/src/services/incomeProcessor';
+import { processDeductions } from '../../../shared/src/services/deductionProcessor';
+import { calculateTaxLiability } from '../../../shared/src/services/taxCalculator';
+import { generateRecommendations } from '../../../shared/src/services/recommendationGenerator';
 
 // Initialize OpenAI
 const openai = new OpenAI({

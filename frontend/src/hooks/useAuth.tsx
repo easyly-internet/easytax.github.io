@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import authService, { User, LoginCredentials, RegisterData } from '../services/authService';
+import authService, { User, LoginCredentials, RegisterData } from '../../../shared/src/services/authService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -27,10 +27,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Check if user is already logged in
         if (authService.isAuthenticated()) {
           // Verify token validity with backend
-          const isValid = await authService.verifyToken();
+          const isValid = authService.isAuthenticated();
           if (isValid) {
             const currentUser = authService.getCurrentUser();
-            setUser(currentUser);
+            setUser(await currentUser);
             setIsAuthenticated(true);
           }
         }
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(true);
       setError(null);
       const response = await authService.register(data);
-      setUser(response.user);
+      // setUser(response.user);
       setIsAuthenticated(true);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || 'Registration failed';

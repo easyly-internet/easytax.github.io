@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Grid, Paper, Typography, Box, Card, CardContent } from '@mui/material';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import DashboardCard from './DashboardCard';
-import { fetchDashboardStats } from '../../services/api';
+import { fetchDashboardStats } from '../../../../shared/src/services/api';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { DashboardStats } from '../../types/dashboard';
 import { useAuth } from '../../context/AuthContext';
@@ -251,7 +251,7 @@ import {
   FileDownload as ExportIcon
 } from '@mui/icons-material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { fetchMembers, deleteMember } from '../../services/api';
+import { fetchMembers, deleteMember } from '../../../../shared/src/services/api';
 import { Member } from '../../types/member';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { useNavigate } from 'react-router-dom';
@@ -569,7 +569,7 @@ import {
   DescriptionOutlined as DocumentIcon,
   ArrowForwardIos as ArrowIcon
 } from '@mui/icons-material';
-import { getAITaxAdvice, submitDocumentForAnalysis } from '../../services/aiService';
+import { getAITaxAdvice, submitDocumentForAnalysis } from '../../../../shared/src/services/aiService';
 
 const steps = ['Upload Documents', 'AI Analysis', 'Review & Submit'];
 

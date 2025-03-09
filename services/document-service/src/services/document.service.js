@@ -1,4 +1,4 @@
-// src/services/document.service.js
+// src/services/documentService.ts
 const axios = require('axios');
 
 /**

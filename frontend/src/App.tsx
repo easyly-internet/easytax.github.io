@@ -4,9 +4,9 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
 // Auth components
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 import Profile from './components/user/Profile';
 
 // Placeholder components (to be implemented later)
